@@ -1,0 +1,22 @@
+{
+  "name": "author-web",
+  "version": "1.0.0",
+  "description": "Author website",
+  "main": "server.js",
+  "scripts": {
+    "test": "node server.js",
+    "devStart": "nodemon server.js"
+  },
+  "author": "Prabhat",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.21.0",
+    "express-ejs-layouts": "^2.5.1",
+    "mongoose": "^8.6.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  }
+}

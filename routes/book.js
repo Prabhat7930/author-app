@@ -17,7 +17,7 @@ const upload = multer({
 });
 
 // get all books
-router.get("/", async (req, res) => {
+router.get("", async (req, res) => {
   let searchQuery = Book.find();
   if (req.query.title) {
     searchQuery = searchQuery.regex("title", new RegExp(req.query.title, "i"));
@@ -38,10 +38,8 @@ router.get("/", async (req, res) => {
   await searchQuery
     .exec()
     .then((books) => {
-      console.log("hi+", Book.coverImagePath);
       res.render("books/index", {
         books: books,
-        fileDir: Book.coverImagePath,
         searchOptions: req.query,
       });
     })

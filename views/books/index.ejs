@@ -24,7 +24,7 @@
 </form>
 <br />
 <div style="display: flex">
-  <% books.forEach(book => { console.log(`${fileDir}/${book.coverImage}`) %>
+  <% books.forEach(book => { %>
   <div
     style="
       display: flex;
@@ -36,7 +36,7 @@
     <img
       height="150"
       width="100"
-      src="<%= `${fileDir}/${book.coverImage}` %>"
+      src="<%= book.coverImagePath %>"
       alt="<%= book.title %>"
     />
     <div><%= book.title %></div>

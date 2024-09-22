@@ -9,10 +9,8 @@ router.get("/", async (req, res) => {
     .limit(10)
     .exec()
     .then((books) => {
-      console.log("hi", Book.coverImagePath);
       res.render("index", {
         books: books,
-        fileDir: Book.coverImagePath,
       });
     })
     .catch((err) => {

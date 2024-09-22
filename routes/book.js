@@ -1,12 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
+const fs = require("fs");
 const path = require("path");
 const Book = require("../models/book");
-const uploadPath = path.join("public", Book.coverImagePath);
 const Author = require("../models/author");
 
-const imageMimeType = ["images/jpeg", "images/jpg", "images/png", "images/gif"];
+// multer configuration
+const uploadPath = path.join("public", Book.coverImagePath);
+const imageMimeType = ["image/jpeg", "image/png", "image/gif"];
 const upload = multer({
   dest: uploadPath,
   fileFilter: (req, file, callback) => {
@@ -14,7 +16,7 @@ const upload = multer({
   },
 });
 
-// all books
+// get all books
 router.get("/", async (req, res) => {
   let searchOptions = {};
   if (req.query.title != null && req.query.title !== "") {
@@ -34,17 +36,7 @@ router.get("/", async (req, res) => {
 
 // new book
 router.get("/new", async (req, res) => {
-  await Author.find()
-    .then((authors) => {
-      console.log(authors);
-      res.render("books/new", {
-        book: new Book(),
-        authors: authors,
-      });
-    })
-    .catch((err) => {
-      res.redirect("/books");
-    });
+  renderNewPage(res, new Book());
 });
 
 // add book
@@ -59,38 +51,52 @@ router.post("/", upload.single("cover"), async (req, res) => {
     description: req.body.description,
   });
 
-  findBook(res, book, saveBook);
-});
-
-async function findBook(res, book, saveBook) {
   await Book.findOne({ title: book.title })
     .then((existing) => {
       if (existing) {
         throw new Error("Book already exists!");
       } else {
-        saveBook(res, book);
+        saveBook(res, book, fileName);
       }
     })
     .catch((err) => {
-      res.render("books/new", {
-        book: book,
-        errorMessage: err.message,
-      });
+      deleteCover(fileName);
+      renderNewPage(res, book, true, err.message);
     });
-}
+});
 
-async function saveBook(res, book, hasError = false) {
+async function saveBook(res, book, fileName) {
   await book
     .save()
     .then((newBook) => {
       res.redirect("/books");
     })
     .catch((err) => {
-      res.render("books/new", {
-        book: book,
-        errorMessage: "Error adding the book",
-      });
+      deleteCover(fileName);
+      renderNewPage(res, book, err.message);
     });
+}
+
+async function renderNewPage(res, book, message = null) {
+  await Author.find()
+    .then((authors) => {
+      res.render("books/new", {
+        authors: authors,
+        book: book,
+        errorMessage: message,
+      });
+    })
+    .catch((err) => {
+      res.redirect("/");
+    });
+}
+
+function deleteCover(fileName) {
+  if (fileName) {
+    fs.unlink(path.join(uploadPath, fileName), (err) => {
+      if (err) console.error(err);
+    });
+  }
 }
 
 module.exports = router;

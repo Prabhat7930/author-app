@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Author = require("../models/author");
 
-// all authors
+// get all authors
 router.get("/", async (req, res) => {
   let searchOptions = {};
   if (req.query.name != null && req.query.name !== "") {
@@ -22,12 +22,10 @@ router.get("/", async (req, res) => {
 
 // new author
 router.get("/new", (req, res) => {
-  res.render("authors/new", {
-    author: new Author(),
-  });
+  renderNewPage(res, new Author());
 });
 
-// create author
+// add unique author
 router.post("/", async (req, res) => {
   const author = new Author({
     name: req.body.name,
@@ -38,26 +36,32 @@ router.post("/", async (req, res) => {
       if (existing) {
         throw new Error("Author Exists");
       } else {
-        author
-          .save()
-          .then((newAuthor) => {
-            res.redirect("/authors");
-            return;
-          })
-          .catch((err) => {
-            res.render("authors/new", {
-              author: author,
-              errorMessage: "Error creating the author!",
-            });
-          });
+        saveAuthor(res, author);
       }
     })
     .catch((err) => {
-      res.render("authors/new", {
-        author: author,
-        errorMessage: err.message,
-      });
+      renderNewPage(res, author, err.message);
     });
 });
+
+// save author
+async function saveAuthor(res, author) {
+  await author
+    .save()
+    .then((newAuthor) => {
+      res.redirect("/authors");
+    })
+    .catch((err) => {
+      renderNewPage(res, author, "Error adding the author!");
+    });
+}
+
+// render new author
+function renderNewPage(res, author, message = null) {
+  res.render("authors/new", {
+    author: author,
+    errorMessage: message,
+  });
+}
 
 module.exports = router;

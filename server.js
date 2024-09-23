@@ -8,6 +8,7 @@ const expressLayouts = require("express-ejs-layouts");
 const bodyParser = require("body-parser");
 const path = require("path");
 
+const removeTrailingSlash = require("./middlewares/trailingSlash");
 const indexRouter = require("./routes/index");
 const authorRouter = require("./routes/author");
 const bookRouter = require("./routes/book");
@@ -23,6 +24,7 @@ app.use(
     extended: false,
   })
 );
+app.use(removeTrailingSlash);
 
 const mongoose = require("mongoose");
 mongoose.connect(process.env.DATABASE_URL);

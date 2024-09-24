@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const fs = require("fs");
 const path = require("path");
 const Book = require("../models/book");
 const Author = require("../models/author");
@@ -63,7 +62,6 @@ router.post("/", async (req, res) => {
       }
     })
     .catch((err) => {
-      // deleteCover(fileName);
       renderNewPage(res, book, true, err.message);
     });
 });
@@ -73,16 +71,16 @@ async function saveBook(res, book, coverEncoded) {
   const cover = JSON.parse(coverEncoded);
   if (cover && imageMimeType.includes(cover.type)) {
     book.coverImage = new Buffer.from(cover.data, "base64");
+    book.coverImageType = cover.type;
+    await book
+      .save()
+      .then((newBook) => {
+        res.redirect("/books");
+      })
+      .catch((err) => {
+        renderNewPage(res, book, err.message);
+      });
   }
-  await book
-    .save()
-    .then((newBook) => {
-      res.redirect("/books");
-    })
-    .catch((err) => {
-      // deleteCover(fileName);
-      renderNewPage(res, book, err.message);
-    });
 }
 
 async function renderNewPage(res, book, message = null) {
@@ -97,14 +95,6 @@ async function renderNewPage(res, book, message = null) {
     .catch((err) => {
       res.redirect("/");
     });
-}
-
-function deleteCover(fileName) {
-  if (fileName) {
-    fs.unlink(path.join(uploadPath, fileName), (err) => {
-      if (err) console.error(err);
-    });
-  }
 }
 
 module.exports = router;

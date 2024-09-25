@@ -1,0 +1,5 @@
+<h3>Edit Details</h3>
+<form action="<%= `/authors/${author.id}?_method=PUT` %>" method="post">
+    <%- include('_form_fields') %>
+    <button type="submit">Update</button>
+</form>

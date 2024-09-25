@@ -1,0 +1,14 @@
+<h3><%= book.title %></h3>
+<div>
+    <img src="<%= book.cover %>" alt="<%= book.title %>">
+    <div><%= book.publishDate.toDateString() %></div>
+</div>
+<form action="/books/<%= book.id %>/edit" method="get">
+    <button type="submit">Edit</button>
+</form>
+<form action="/books/<%= book.id %>_method=DELETE" method="post">
+    <button type="submit">Delete</button>
+</form>
+<form action="/authors/<%= book.author %>" method="get">
+    <button type="submit">Show Author</button>
+</form>

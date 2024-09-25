@@ -41,5 +41,8 @@
     />
     <div><%= book.title %></div>
   </div>
+  <form action="/books/<%= book.id%>" method="get">
+    <button type="submit">View</button>
+  </form>
   <% }) %>
 </div>

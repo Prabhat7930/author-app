@@ -3,6 +3,7 @@ const router = express.Router();
 const path = require("path");
 const Book = require("../models/book");
 const Author = require("../models/author");
+const book = require("../models/book");
 
 const imageMimeType = ["image/jpeg", "image/png", "image/gif"];
 
@@ -63,6 +64,52 @@ router.post("/", async (req, res) => {
     })
     .catch((err) => {
       renderNewPage(res, book, true, err.message);
+    });
+});
+
+router.get("/:id", async (req, res) => {
+  const bookId = req.params.id;
+  await Book.findById(bookId)
+    .then((book) => {
+      res.render("books/book.ejs", {
+        book: book,
+      });
+    })
+    .catch((err) => {
+      res.redirect("/books");
+    });
+});
+
+router.get("/:id/edit", async (req, res) => {
+  const bookId = req.params.id;
+  // await Book.findById();
+  // res.render("books/book.ejs", {});
+});
+
+router.put("/:id", async (req, res) => {
+  const bookId = req.params.id;
+  const updateQuery = {
+    title: req.body.title,
+    author: req.body.author,
+    publishDate: new Date(req.body.publishDate),
+    pageCount: req.body.pageCount,
+    description: req.body.description,
+  };
+  if (req.body.cover) {
+    const cover = JSON.parse(book.cover);
+    if (imageMimeType.includes(cover.type)) {
+      const imageBuffer = new Buffer.from(cover.data, "base64");
+      updateQuery.coverImage = imageBuffer;
+      updateQuery.coverImageType = cover.type;
+    }
+  }
+
+  await Book.findOneAndUpdate(updateQuery)
+    .then((updatedBook) => {
+      console.log(updatedBook);
+    })
+    .catch((err) => {
+      console.error(err);
     });
 });
 

@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Author = require("../models/author");
+const Book = require("../models/book");
 
 // get all authors
 router.get("/", async (req, res) => {
@@ -9,6 +10,8 @@ router.get("/", async (req, res) => {
     searchQuery = searchQuery.regex("name", new RegExp(req.query.name, "i"));
   }
   await searchQuery
+    .sort({ name: "asc" })
+    .limit(10)
     .exec()
     .then((authors) => {
       res.render("authors/index", {
@@ -42,6 +45,63 @@ router.post("/", async (req, res) => {
     })
     .catch((err) => {
       renderNewPage(res, author, err.message);
+    });
+});
+
+router.get("/:id", async (req, res) => {
+  const authorId = req.params.id;
+  await Author.findById(authorId)
+    .then((author) => {
+      showAuthorProfile(res, author);
+    })
+    .catch((err) => {
+      res.redirect("/");
+    });
+});
+
+async function showAuthorProfile(res, author) {
+  await Book.find({ author: author._id })
+    .then((books) => {
+      res.render("authors/author.ejs", {
+        author: author,
+        books: books,
+      });
+    })
+    .catch((err) => {
+      res.redirect("/");
+    });
+}
+
+router.get("/:id/edit", async (req, res) => {
+  const authorId = req.params.id;
+  await Author.findById(authorId)
+    .then((author) => {})
+    .catch((err) => {
+      res.redirect("/");
+    });
+});
+
+router.put("/:id", async (req, res) => {
+  const authorId = req.params.id;
+  const authorName = req.body.name;
+  await Author.findByIdAndUpdate(authorId, { name: authorName })
+    .then((updatedAuthor) => {
+      res.redirect("/authors");
+    })
+    .catch((err) => {
+      console.error(err.message);
+      res.redirect("/");
+    });
+});
+
+router.delete("/:id", async (req, res) => {
+  const authorId = req.params.id;
+  await Author.findByIdAndDelete(authorId)
+    .then((deletedAuthor) => {
+      res.redirect("/authors");
+    })
+    .catch((err) => {
+      res.redirect("/authors");
     });
 });
 

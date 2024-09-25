@@ -38,14 +38,11 @@ const bookSchema = new mongoose.Schema({
 });
 
 bookSchema.virtual("cover").get(function () {
-  console.log(this.coverImage.toString("base64"));
   if (this.coverImage && this.coverImageType) {
     return `data:${
       this.coverImageType
     };charset=utf-8;base64,${this.coverImage.toString("base64")}`;
   }
 });
-
-// data:image/jpeg;charset=utf-8;base64;v4785h6n3487v65y873
 
 module.exports = mongoose.model("book", bookSchema);
